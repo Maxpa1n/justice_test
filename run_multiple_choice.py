@@ -178,12 +178,8 @@ def main():
     )
 
     def compute_metrics(p: EvalPrediction) -> Dict:
-        ac = []
         preds = p.predictions
-        preds[preds >= 0.5] = 1
-        preds[preds < 0.5] = 0
-        for i, j in zip(preds, p.label_ids):
-            ac.append((i == j).all())
+        ac = (np.argmax(preds, axis=1) == p.label_ids).mean()
         # preds = np.argmax(p.predictions, axis=1)
         return {"acc": np.array(ac).mean()}
 

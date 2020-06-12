@@ -14,21 +14,20 @@ class AlbertForJustice(AlbertPreTrainedModel):
 
         self.albert = AlbertModel(config)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.classifier = nn.Linear(config.hidden_size, 1)
-
+        self.classifier = nn.Linear(config.hidden_size*4, 16)
 
         self.init_weights()
 
     @add_start_docstrings_to_callable(ALBERT_INPUTS_DOCSTRING)
     def forward(
-        self,
-        input_ids=None,
-        attention_mask=None,
-        token_type_ids=None,
-        position_ids=None,
-        head_mask=None,
-        inputs_embeds=None,
-        labels=None,
+            self,
+            input_ids=None,
+            attention_mask=None,
+            token_type_ids=None,
+            position_ids=None,
+            head_mask=None,
+            inputs_embeds=None,
+            labels=None,
     ):
         r"""
         labels (:obj:`torch.LongTensor` of shape :obj:`(batch_size,)`, `optional`, defaults to :obj:`None`):
@@ -73,6 +72,7 @@ class AlbertForJustice(AlbertPreTrainedModel):
 
         """
         num_choices = input_ids.shape[1]
+        batch_size = input_ids.shape[0]
 
         input_ids = input_ids.view(-1, input_ids.size(-1))
         attention_mask = attention_mask.view(-1, attention_mask.size(-1)) if attention_mask is not None else None
@@ -91,15 +91,13 @@ class AlbertForJustice(AlbertPreTrainedModel):
         pooled_output = outputs[1]
 
         pooled_output = self.dropout(pooled_output)
-        logits = self.classifier(pooled_output)
-        reshaped_logits = torch.sigmoid(logits.view(-1, num_choices))
-
-
-        outputs = (reshaped_logits,) + outputs[2:]  # add hidden states and attention if they are here
+        reshaped_logits = pooled_output.view(batch_size, -1)
+        logits = self.classifier(reshaped_logits)
+        outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
 
         if labels is not None:
-            loss_fct = MSELoss()
-            loss = loss_fct(reshaped_logits, labels)
+            loss_fct = CrossEntropyLoss()
+            loss = loss_fct(logits, labels)
             outputs = (loss,) + outputs
 
         return outputs  # (loss), reshaped_logits, (hidden_states), (attentions)
