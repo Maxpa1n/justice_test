@@ -485,7 +485,6 @@ class Trainer:
                     if is_tpu_available():
                         xm.optimizer_step(optimizer)
                     else:
-                        print('*******')
                         optimizer.step()
 
                     scheduler.step()
