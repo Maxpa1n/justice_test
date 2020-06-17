@@ -199,7 +199,7 @@ class HfApi:
 
 class TqdmProgressFileReader:
     """
-    Wrap an io.BufferedReader `f` (such as the output of `open(…, "rb")`)
+    Wrap an io.BufferedReader `f` (such as the eval_model_dir of `open(…, "rb")`)
     and override `f.read()` so as to display a tqdm progress bar.
 
     see github.com/huggingface/transformers/pull/2078#discussion_r354739608

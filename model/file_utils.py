@@ -452,7 +452,7 @@ def get_from_cache(
 
 class cached_property(property):
     """
-    Descriptor that mimics @property but caches output in member variable.
+    Descriptor that mimics @property but caches eval_model_dir in member variable.
 
     From tensorflow_datasets
 

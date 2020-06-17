@@ -48,7 +48,7 @@ def glue_convert_examples_to_features(
         max_length: Maximum example length. Defaults to the tokenizer's max_len
         task: GLUE task
         label_list: List of labels. Can be obtained from the processor using the ``processor.get_labels()`` method
-        output_mode: String indicating the output mode. Either ``regression`` or ``classification``
+        output_mode: String indicating the eval_model_dir mode. Either ``regression`` or ``classification``
 
     Returns:
         If the ``examples`` input is a ``tf.data.Dataset``, will return a ``tf.data.Dataset``
@@ -122,7 +122,7 @@ def _glue_convert_examples_to_features(
             logger.info("Using label list %s for task %s" % (label_list, task))
         if output_mode is None:
             output_mode = glue_output_modes[task]
-            logger.info("Using output mode %s for task %s" % (output_mode, task))
+            logger.info("Using eval_model_dir mode %s for task %s" % (output_mode, task))
 
     label_map = {label: i for i, label in enumerate(label_list)}
 
