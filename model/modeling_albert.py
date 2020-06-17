@@ -87,10 +87,10 @@ def load_tf_weights_in_albert(model, config, tf_checkpoint_path):
 
         # The feed forward layer had an 'intermediate' step which has been abstracted away
         name = name.replace("intermediate/dense/", "")
-        name = name.replace("ffn/intermediate/output/dense/", "ffn_output/")
+        name = name.replace("ffn/intermediate/eval_model_dir/dense/", "ffn_output/")
 
-        # ALBERT attention was split between self and output which have been abstracted away
-        name = name.replace("/output/", "/")
+        # ALBERT attention was split between self and eval_model_dir which have been abstracted away
+        name = name.replace("/eval_model_dir/", "/")
         name = name.replace("/self/", "/")
 
         # The pooler is a linear layer
@@ -280,7 +280,7 @@ class AlbertLayer(nn.Module):
         ffn_output = self.ffn_output(ffn_output)
         hidden_states = self.full_layer_layer_norm(ffn_output + attention_output[0])
 
-        return (hidden_states,) + attention_output[1:]  # add attentions if we output them
+        return (hidden_states,) + attention_output[1:]  # add attentions if we eval_model_dir them
 
 
 class AlbertLayerGroup(nn.Module):
@@ -498,21 +498,21 @@ class AlbertModel(AlbertPreTrainedModel):
     Return:
         :obj:`tuple(torch.FloatTensor)` comprising various elements depending on the configuration (:class:`~transformers.AlbertConfig`) and inputs:
         last_hidden_state (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, sequence_length, hidden_size)`):
-            Sequence of hidden-states at the output of the last layer of the model.
+            Sequence of hidden-states at the eval_model_dir of the last layer of the model.
         pooler_output (:obj:`torch.FloatTensor`: of shape :obj:`(batch_size, hidden_size)`):
             Last layer hidden-state of the first token of the sequence (classification token)
             further processed by a Linear layer and a Tanh activation function. The Linear
             layer weights are trained from the next sentence prediction (classification)
             objective during pre-training.
 
-            This output is usually *not* a good summary
+            This eval_model_dir is usually *not* a good summary
             of the semantic content of the input, you're often better with averaging or pooling
             the sequence of hidden-states for the whole input sequence.
         hidden_states (:obj:`tuple(torch.FloatTensor)`, `optional`, returned when ``config.output_hidden_states=True``):
-            Tuple of :obj:`torch.FloatTensor` (one for the output of the embeddings + one for the output of each layer)
+            Tuple of :obj:`torch.FloatTensor` (one for the eval_model_dir of the embeddings + one for the eval_model_dir of each layer)
             of shape :obj:`(batch_size, sequence_length, hidden_size)`.
 
-            Hidden-states of the model at the output of each layer plus the initial embedding outputs.
+            Hidden-states of the model at the eval_model_dir of each layer plus the initial embedding outputs.
         attentions (:obj:`tuple(torch.FloatTensor)`, `optional`, returned when ``config.output_attentions=True``):
             Tuple of :obj:`torch.FloatTensor` (one for each layer) of shape
             :obj:`(batch_size, num_heads, sequence_length, sequence_length)`.
@@ -529,7 +529,7 @@ class AlbertModel(AlbertPreTrainedModel):
         model = AlbertModel.from_pretrained('albert-base-v2')
         input_ids = torch.tensor(tokenizer.encode("Hello, my dog is cute", add_special_tokens=True)).unsqueeze(0)  # Batch size 1
         outputs = model(input_ids)
-        last_hidden_states = outputs[0]  # The last hidden-state is the first element of the output tuple
+        last_hidden_states = outputs[0]  # The last hidden-state is the first element of the eval_model_dir tuple
 
         """
 
@@ -625,10 +625,10 @@ class AlbertForPreTraining(AlbertPreTrainedModel):
             Prediction scores of the next sequence prediction (classification) head (scores of True/False
             continuation before SoftMax).
         hidden_states (:obj:`tuple(torch.FloatTensor)`, `optional`, returned when :obj:`config.output_hidden_states=True`):
-            Tuple of :obj:`torch.FloatTensor` (one for the output of the embeddings + one for the output of each layer)
+            Tuple of :obj:`torch.FloatTensor` (one for the eval_model_dir of the embeddings + one for the eval_model_dir of each layer)
             of shape :obj:`(batch_size, sequence_length, hidden_size)`.
 
-            Hidden-states of the model at the output of each layer plus the initial embedding outputs.
+            Hidden-states of the model at the eval_model_dir of each layer plus the initial embedding outputs.
         attentions (:obj:`tuple(torch.FloatTensor)`, `optional`, returned when ``config.output_attentions=True``):
             Tuple of :obj:`torch.FloatTensor` (one for each layer) of shape
             :obj:`(batch_size, num_heads, sequence_length, sequence_length)`.
@@ -759,10 +759,10 @@ class AlbertForMaskedLM(AlbertPreTrainedModel):
         prediction_scores (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, sequence_length, config.vocab_size)`)
             Prediction scores of the language modeling head (scores for each vocabulary token before SoftMax).
         hidden_states (:obj:`tuple(torch.FloatTensor)`, `optional`, returned when ``config.output_hidden_states=True``):
-            Tuple of :obj:`torch.FloatTensor` (one for the output of the embeddings + one for the output of each layer)
+            Tuple of :obj:`torch.FloatTensor` (one for the eval_model_dir of the embeddings + one for the eval_model_dir of each layer)
             of shape :obj:`(batch_size, sequence_length, hidden_size)`.
 
-            Hidden-states of the model at the output of each layer plus the initial embedding outputs.
+            Hidden-states of the model at the eval_model_dir of each layer plus the initial embedding outputs.
         attentions (:obj:`tuple(torch.FloatTensor)`, `optional`, returned when ``config.output_attentions=True``):
             Tuple of :obj:`torch.FloatTensor` (one for each layer) of shape
             :obj:`(batch_size, num_heads, sequence_length, sequence_length)`.
@@ -805,7 +805,7 @@ class AlbertForMaskedLM(AlbertPreTrainedModel):
 
 @add_start_docstrings(
     """Albert Model transformer with a sequence classification/regression head on top (a linear layer on top of
-    the pooled output) e.g. for GLUE tasks. """,
+    the pooled eval_model_dir) e.g. for GLUE tasks. """,
     ALBERT_START_DOCSTRING,
 )
 class AlbertForSequenceClassification(AlbertPreTrainedModel):
@@ -844,10 +844,10 @@ class AlbertForSequenceClassification(AlbertPreTrainedModel):
         logits ``torch.FloatTensor`` of shape ``(batch_size, config.num_labels)``
             Classification (or regression if config.num_labels==1) scores (before SoftMax).
         hidden_states (:obj:`tuple(torch.FloatTensor)`, `optional`, returned when ``config.output_hidden_states=True``):
-            Tuple of :obj:`torch.FloatTensor` (one for the output of the embeddings + one for the output of each layer)
+            Tuple of :obj:`torch.FloatTensor` (one for the eval_model_dir of the embeddings + one for the eval_model_dir of each layer)
             of shape :obj:`(batch_size, sequence_length, hidden_size)`.
 
-            Hidden-states of the model at the output of each layer plus the initial embedding outputs.
+            Hidden-states of the model at the eval_model_dir of each layer plus the initial embedding outputs.
         attentions (:obj:`tuple(torch.FloatTensor)`, `optional`, returned when ``config.output_attentions=True``):
             Tuple of :obj:`torch.FloatTensor` (one for each layer) of shape
             :obj:`(batch_size, num_heads, sequence_length, sequence_length)`.
@@ -900,7 +900,7 @@ class AlbertForSequenceClassification(AlbertPreTrainedModel):
 
 @add_start_docstrings(
     """Albert Model with a token classification head on top (a linear layer on top of
-    the hidden-states output) e.g. for Named-Entity-Recognition (NER) tasks. """,
+    the hidden-states eval_model_dir) e.g. for Named-Entity-Recognition (NER) tasks. """,
     ALBERT_START_DOCSTRING,
 )
 class AlbertForTokenClassification(AlbertPreTrainedModel):
@@ -937,10 +937,10 @@ class AlbertForTokenClassification(AlbertPreTrainedModel):
         scores (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, sequence_length, config.num_labels)`)
             Classification scores (before SoftMax).
         hidden_states (:obj:`tuple(torch.FloatTensor)`, `optional`, returned when ``config.output_hidden_states=True``):
-            Tuple of :obj:`torch.FloatTensor` (one for the output of the embeddings + one for the output of each layer)
+            Tuple of :obj:`torch.FloatTensor` (one for the eval_model_dir of the embeddings + one for the eval_model_dir of each layer)
             of shape :obj:`(batch_size, sequence_length, hidden_size)`.
 
-            Hidden-states of the model at the output of each layer plus the initial embedding outputs.
+            Hidden-states of the model at the eval_model_dir of each layer plus the initial embedding outputs.
         attentions (:obj:`tuple(torch.FloatTensor)`, `optional`, returned when ``config.output_attentions=True``):
             Tuple of :obj:`torch.FloatTensor` (one for each layer) of shape
             :obj:`(batch_size, num_heads, sequence_length, sequence_length)`.
@@ -997,7 +997,7 @@ class AlbertForTokenClassification(AlbertPreTrainedModel):
 
 @add_start_docstrings(
     """Albert Model with a span classification head on top for extractive question-answering tasks like SQuAD (a linear layers on top of
-    the hidden-states output to compute `span start logits` and `span end logits`). """,
+    the hidden-states eval_model_dir to compute `span start logits` and `span end logits`). """,
     ALBERT_START_DOCSTRING,
 )
 class AlbertForQuestionAnswering(AlbertPreTrainedModel):
@@ -1041,10 +1041,10 @@ class AlbertForQuestionAnswering(AlbertPreTrainedModel):
         end_scores: ``torch.FloatTensor`` of shape ``(batch_size, sequence_length,)``
             Span-end scores (before SoftMax).
         hidden_states (:obj:`tuple(torch.FloatTensor)`, `optional`, returned when ``config.output_hidden_states=True``):
-            Tuple of :obj:`torch.FloatTensor` (one for the output of the embeddings + one for the output of each layer)
+            Tuple of :obj:`torch.FloatTensor` (one for the eval_model_dir of the embeddings + one for the eval_model_dir of each layer)
             of shape :obj:`(batch_size, sequence_length, hidden_size)`.
 
-            Hidden-states of the model at the output of each layer plus the initial embedding outputs.
+            Hidden-states of the model at the eval_model_dir of each layer plus the initial embedding outputs.
         attentions (:obj:`tuple(torch.FloatTensor)`, `optional`, returned when ``config.output_attentions=True``):
             Tuple of :obj:`torch.FloatTensor` (one for each layer) of shape
             :obj:`(batch_size, num_heads, sequence_length, sequence_length)`.

@@ -240,7 +240,7 @@ class SingleSentenceClassificationProcessor(DataProcessor):
             max_length: Maximum example length
             task: GLUE task
             label_list: List of labels. Can be obtained from the processor using the ``processor.get_labels()`` method
-            output_mode: String indicating the output mode. Either ``regression`` or ``classification``
+            output_mode: String indicating the eval_model_dir mode. Either ``regression`` or ``classification``
             pad_on_left: If set to ``True``, the examples will be padded on the left rather than on the right (default)
             pad_token: Padding token
             mask_padding_with_zero: If set to ``True``, the attention mask will be filled by ``1`` for actual values

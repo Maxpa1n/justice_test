@@ -14,8 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """ Finetuning the library models for multiple choice (Bert, Roberta, XLNet)."""
-
-
+import json
 import logging
 import os
 from dataclasses import dataclass, field
@@ -58,16 +57,20 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
+        default="eval_model_dir/",
         metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"}
     )
     config_name: Optional[str] = field(
-        default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
+        default=None,
+        metadata={"help": "Pretrained config name or path if not the same as model_name"}
     )
     tokenizer_name: Optional[str] = field(
-        default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name"}
+        default=None,
+        metadata={"help": "Pretrained tokenizer name or path if not the same as model_name"}
     )
     cache_dir: Optional[str] = field(
-        default=None, metadata={"help": "Where do you want to store the pretrained models downloaded from s3"}
+        default=None,
+        metadata={"help": "Where do you want to store the pretrained models downloaded from s3"}
     )
 
 
@@ -77,17 +80,23 @@ class DataTrainingArguments:
     Arguments pertaining to what data we are going to input our model for training and eval.
     """
 
-    task_name: str = field(metadata={"help": "The name of the task to train on: " + ", ".join(processors.keys())})
-    data_dir: str = field(metadata={"help": "Should contain the data files for the task."})
+    task_name: str = field(
+        default="justice_race",
+        metadata={"help": "The name of the task to train on: " + ", ".join(processors.keys())}
+    )
+
+    data_dir: str = field(
+        default="/input/",
+        metadata={"help": "Should contain the data files for the task."})
     max_seq_length: int = field(
-        default=128,
+        default=256,
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
-            "than this will be truncated, sequences shorter will be padded."
+                    "than this will be truncated, sequences shorter will be padded."
         },
     )
     overwrite_cache: bool = field(
-        default=False, metadata={"help": "Overwrite the cached training and evaluation sets"}
+        default=True, metadata={"help": "Overwrite the cached training and evaluation sets"}
     )
 
 
@@ -100,10 +109,10 @@ def main():
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
     if (
-        os.path.exists(training_args.output_dir)
-        and os.listdir(training_args.output_dir)
-        and training_args.do_train
-        and not training_args.overwrite_output_dir
+            os.path.exists(training_args.output_dir)
+            and os.listdir(training_args.output_dir)
+            and training_args.do_train
+            and not training_args.overwrite_output_dir
     ):
         raise ValueError(
             f"Output directory ({training_args.output_dir}) already exists and is not empty. Use --overwrite_output_dir to overcome."
@@ -131,7 +140,6 @@ def main():
     try:
         processor = processors[data_args.task_name]()
         label_list = processor.get_labels()
-        num_labels = len(label_list)
     except KeyError:
         raise ValueError("Task not found: %s" % (data_args.task_name))
 
@@ -166,7 +174,7 @@ def main():
 
     def compute_metrics(p: EvalPrediction) -> Dict:
         preds = p.predictions
-        ac = (np.argmax(preds, axis=1) == p.label_ids).mean()
+        ac = (preds == p.label_ids).mean()
         # preds = np.argmax(p.predictions, axis=1)
         return {"acc": np.array(ac).mean()}
 
@@ -179,28 +187,37 @@ def main():
     )
 
     # Evaluation
-    results = {}
+    output_map = {
+        0: [],
+        1: ['A'],
+        2: ['B'],
+        4: ['C'],
+        8: ['D'],
+        5: ['A', 'B'],
+        6: ['B', 'C'],
+        7: ['A', 'B', 'C'],
+        9: ['A', 'D'],
+        10: ['B', 'D'],
+        11: ['A', 'B', 'D'],
+        12: ['C', 'D'],
+        13: ['A', 'C', 'D'],
+        14: ['B', 'C', 'D'],
+        15: ['A', 'B', 'C', 'D']
+    }
+
     if training_args.do_eval:
         logger.info("*** Evaluate ***")
 
-        result = trainer.evaluate()
+        # result = trainer.evaluate()
+        result = trainer.predict(eval_dataset)
+        result_out = {}
+        for i, j in zip(result.predictions, result.id):
+            result_out[j] = output_map[i]
 
-        output_eval_file = os.path.join(training_args.output_dir, "eval_results.txt")
-        if trainer.is_world_master():
-            with open(output_eval_file, "w") as writer:
-                logger.info("***** Eval results *****")
-                for key, value in result.items():
-                    logger.info("  %s = %s", key, value)
-                    writer.write("%s = %s\n" % (key, value))
+        output_eval_file = os.path.join(training_args.output_dir, "result.txt")
 
-                results.update(result)
-
-    return results
-
-
-def _mp_fn(index):
-    # For xla_spawn (TPUs)
-    main()
+        json.dump(result_out, open(output_eval_file, "w", encoding="utf8"), indent=2, ensure_ascii=False,
+                  sort_keys=True)
 
 
 if __name__ == "__main__":

@@ -120,8 +120,8 @@ def truncate_and_pad(
             max_length (int): The maximum size of the sequence
             stride (int): The stride to use when handling overflow
             strategy (str): Overflowing logic to use
-            pad_to_max_length (bool): Boolean indicating if the output needs to be padded up to max_length
-            padding_side (str): "left" or "right" indicating the direction the output sequence will be padded
+            pad_to_max_length (bool): Boolean indicating if the eval_model_dir needs to be padded up to max_length
+            padding_side (str): "left" or "right" indicating the direction the eval_model_dir sequence will be padded
             pad_token_id (int): The integer representation of the padding token to use
             pad_token_type_id (int): The integer representation of the padding token type to use
             pad_token (str): The string representation of the padding token to use
@@ -162,7 +162,7 @@ def truncate_and_pad(
 
 
 class BatchEncoding(UserDict):
-    """ BatchEncoding hold the output of the encode and batch_encode methods (tokens, attention_masks, etc).
+    """ BatchEncoding hold the eval_model_dir of the encode and batch_encode methods (tokens, attention_masks, etc).
         This class is derived from a python Dictionary and can be used as a dictionnary.
         In addition, this class expose utility methods to map from word/char space to token space.
 
@@ -357,7 +357,7 @@ class BatchEncoding(UserDict):
         return CharSpan(*(self._encodings[batch_index].token_to_chars(token_index)))
 
     def char_to_token(self, batch_or_char_index: int, char_index: Optional[int] = None) -> int:
-        """ Get the index of the token in the encoded output comprising a character
+        """ Get the index of the token in the encoded eval_model_dir comprising a character
             in the original string for a sequence of the batch.
 
             Can be called as:
@@ -1812,7 +1812,7 @@ class PreTrainedTokenizer(SpecialTokensMixin):
 
             elif return_tensors is not None:
                 logger.warning(
-                    "Unable to convert output to tensors format {}, PyTorch or TensorFlow is not available.".format(
+                    "Unable to convert eval_model_dir to tensors format {}, PyTorch or TensorFlow is not available.".format(
                         return_tensors
                     )
                 )
@@ -1924,7 +1924,7 @@ class PreTrainedTokenizer(SpecialTokensMixin):
             sequence = ids + pair_ids if pair else ids
             token_type_ids = [0] * len(ids) + ([1] * len(pair_ids) if pair else [])
 
-        # Build output dictionnary
+        # Build eval_model_dir dictionnary
         encoded_inputs["input_ids"] = sequence
         if return_token_type_ids:
             encoded_inputs["token_type_ids"] = token_type_ids
@@ -2010,7 +2010,7 @@ class PreTrainedTokenizer(SpecialTokensMixin):
                 encoded_inputs["attention_mask"] = torch.tensor([encoded_inputs["attention_mask"]])
         elif return_tensors is not None:
             logger.warning(
-                "Unable to convert output to tensors format {}, PyTorch or TensorFlow is not available.".format(
+                "Unable to convert eval_model_dir to tensors format {}, PyTorch or TensorFlow is not available.".format(
                     return_tensors
                 )
             )
@@ -2313,9 +2313,9 @@ class PreTrainedTokenizerFast(PreTrainedTokenizer):
         return_special_tokens_mask: bool = False,
         return_offsets_mapping: bool = False,
     ) -> Dict[str, Any]:
-        """ Convert the encoding representation (from low-level HuggingFace tokenizer output) to a python Dict.
+        """ Convert the encoding representation (from low-level HuggingFace tokenizer eval_model_dir) to a python Dict.
 
-            Overflowing tokens are converted to additional examples (like batches) so the output values of
+            Overflowing tokens are converted to additional examples (like batches) so the eval_model_dir values of
             the dict are lists (overflows) of lists (tokens).
 
             If return_tensors is not None, these lists of lists are converted to 2-D tensors
@@ -2353,7 +2353,7 @@ class PreTrainedTokenizerFast(PreTrainedTokenizer):
                     encoding_dict[key] = torch.tensor(value)
                 elif return_tensors is not None:
                     logger.warning(
-                        "Unable to convert output to tensors format {}, "
+                        "Unable to convert eval_model_dir to tensors format {}, "
                         "PyTorch or TensorFlow is not available.".format(return_tensors)
                     )
 
@@ -2536,7 +2536,7 @@ class PreTrainedTokenizerFast(PreTrainedTokenizer):
             for encoding in encodings
         ]
 
-        # Sanitize the output to have dict[list] from list[dict]
+        # Sanitize the eval_model_dir to have dict[list] from list[dict]
         sanitized = {}
         for key in tokens[0].keys():
             # To List[List[List[int]]] of shape (batch, overflows, sequence length)

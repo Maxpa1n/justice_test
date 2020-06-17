@@ -39,13 +39,13 @@ class TrainingArguments:
     """
 
     output_dir: str = field(
-        metadata={"help": "The output directory where the model predictions and checkpoints will be written."}
+        metadata={"help": "The eval_model_dir directory where the model predictions and checkpoints will be written."}
     )
     overwrite_output_dir: bool = field(
         default=False,
         metadata={
             "help": (
-                "Overwrite the content of the output directory."
+                "Overwrite the content of the eval_model_dir directory."
                 "Use this to continue training if output_dir points to a checkpoint directory."
             )
         },

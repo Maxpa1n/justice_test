@@ -318,17 +318,17 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
 
     def get_output_embeddings(self):
         """
-        Returns the model's output embeddings.
+        Returns the model's eval_model_dir embeddings.
 
         Returns:
             :obj:`nn.Module`:
                 A torch module mapping hidden states to vocabulary.
         """
-        return None  # Overwrite for models with output embeddings
+        return None  # Overwrite for models with eval_model_dir embeddings
 
     def tie_weights(self):
         """
-        Tie the weights between the input embeddings and the output embeddings.
+        Tie the weights between the input embeddings and the eval_model_dir embeddings.
         If the `torchscript` flag is set in the configuration, can't handle parameter sharing so we are cloning
         the weights instead.
         """
@@ -908,7 +908,7 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
 
         Return:
 
-            output: `torch.LongTensor` of shape `(batch_size * num_return_sequences, sequence_length)`
+            eval_model_dir: `torch.LongTensor` of shape `(batch_size * num_return_sequences, sequence_length)`
                 sequence_length is either equal to max_length or shorter if all batches finished early due to the `eos_token_id`
 
         Examples::
@@ -923,7 +923,7 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
             input_context = 'The dog'
             input_ids = tokenizer.encode(input_context, return_tensors='pt')  # encode input context
             outputs = model.generate(input_ids=input_ids, num_beams=5, num_return_sequences=3, temperature=1.5)  # generate 3 independent sequences using beam search decoding (5 beams) with sampling from initial context 'The dog'
-            for i in range(3): #  3 output sequences were generated
+            for i in range(3): #  3 eval_model_dir sequences were generated
                 print('Generated {}: {}'.format(i, tokenizer.decode(outputs[i], skip_special_tokens=True)))
 
             tokenizer = AutoTokenizer.from_pretrained('distilgpt2')   # Initialize tokenizer
@@ -931,7 +931,7 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
             input_context = 'The dog'
             input_ids = tokenizer.encode(input_context, return_tensors='pt')  # encode input context
             outputs = model.generate(input_ids=input_ids, max_length=40, temperature=0.7, num_return_sequences=3)  # 3 generate sequences using by sampling
-            for i in range(3): #  3 output sequences were generated
+            for i in range(3): #  3 eval_model_dir sequences were generated
                 print('Generated {}: {}'.format(i, tokenizer.decode(outputs[i], skip_special_tokens=True)))
 
             tokenizer = AutoTokenizer.from_pretrained('ctrl')   # Initialize tokenizer
@@ -1033,7 +1033,7 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
                 # no_beam_search greedy generation conditions
                 assert (
                     num_return_sequences == 1
-                ), "Greedy decoding will always produce the same output for num_beams == 1 and num_return_sequences > 1. Please set num_return_sequences = 1"
+                ), "Greedy decoding will always produce the same eval_model_dir for num_beams == 1 and num_return_sequences > 1. Please set num_return_sequences = 1"
 
             else:
                 # beam_search greedy generation conditions
@@ -1118,7 +1118,7 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
                 batch_size == encoder_outputs[0].shape[0]
             ), f"expected encoder_outputs[0] to have 1st dimension bs={batch_size}, got {encoder_outputs[0].shape[0]} "
 
-            # expand batch_idx to assign correct encoder output for expanded input_ids (due to num_beams > 1 and num_return_sequences > 1)
+            # expand batch_idx to assign correct encoder eval_model_dir for expanded input_ids (due to num_beams > 1 and num_return_sequences > 1)
             expanded_batch_idxs = (
                 torch.arange(batch_size)
                 .view(-1, 1)
@@ -1423,7 +1423,7 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
                     batch_size, num_beams * vocab_size
                 )  # (batch_size, num_beams * vocab_size)
 
-                # Sample 2 next tokens for each beam (so we have some spare tokens and match output of greedy beam search)
+                # Sample 2 next tokens for each beam (so we have some spare tokens and match eval_model_dir of greedy beam search)
                 probs = F.softmax(_scores, dim=-1)
                 next_tokens = torch.multinomial(probs, num_samples=2 * num_beams)  # (batch_size, num_beams * 2)
                 # Compute next scores
@@ -1659,7 +1659,7 @@ def top_k_top_p_filtering(
             if top_k > 0: keep only top k tokens with highest probability (top-k filtering).
             if top_p < 1.0: keep the top tokens with cumulative probability >= top_p (nucleus filtering).
                 Nucleus filtering is described in Holtzman et al. (http://arxiv.org/abs/1904.09751)
-            Make sure we keep at least min_tokens_to_keep per batch example in the output
+            Make sure we keep at least min_tokens_to_keep per batch example in the eval_model_dir
         From: https://gist.github.com/thomwolf/1a5a29f6962089e871b94cbd09daf317
     """
     if top_k > 0:
@@ -2002,7 +2002,7 @@ class SequenceSummary(nn.Module):
                 - 'attn' => Not implemented now, use multi-head attention
             summary_use_proj: Add a projection after the vector extraction
             summary_proj_to_labels: If True, the projection outputs to config.num_labels classes (otherwise to hidden_size). Default: False.
-            summary_activation: 'tanh' or another string => add an activation to the output, Other => no activation. Default
+            summary_activation: 'tanh' or another string => add an activation to the eval_model_dir, Other => no activation. Default
             summary_first_dropout: Add a dropout before the projection and activation
             summary_last_dropout: Add a dropout after the projection and activation
     """
@@ -2201,7 +2201,7 @@ def apply_chunking_to_forward(
         input_tensors_chunks = tuple(input_tensor.chunk(num_chunks, dim=chunk_dim) for input_tensor in input_tensors)
         # apply forward fn to every tuple
         output_chunks = tuple(forward_fn(*input_tensors_chunk) for input_tensors_chunk in zip(*input_tensors_chunks))
-        # concatenate output at same dimension
+        # concatenate eval_model_dir at same dimension
         return torch.cat(output_chunks, dim=chunk_dim)
 
     return forward_fn(*input_tensors)

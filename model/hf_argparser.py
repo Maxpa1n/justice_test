@@ -18,7 +18,7 @@ class HfArgumentParser(ArgumentParser):
 
     The class is designed to play well with the native argparse. In particular,
     you can add more (non-dataclass backed) arguments to the parser after initialization
-    and you'll get the output back after parsing as an additional namespace.
+    and you'll get the eval_model_dir back after parsing as an additional namespace.
     """
 
     dataclass_types: Iterable[DataClassType]

@@ -215,7 +215,7 @@ class Trainer:
                 "run `pip install wandb; wandb login` see https://docs.wandb.com/huggingface."
             )
         set_seed(self.args.seed)
-        # Create output directory if needed
+        # Create eval_model_dir directory if needed
         if self.is_world_master():
             os.makedirs(self.args.output_dir, exist_ok=True)
         if is_tpu_available():

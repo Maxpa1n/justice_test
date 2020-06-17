@@ -497,7 +497,7 @@ class WordpieceTokenizer(object):
 
         For example:
           input = "unaffable"
-          output = ["un", "##aff", "##able"]
+          eval_model_dir = ["un", "##aff", "##able"]
 
         Args:
           text: A single token or whitespace separated tokens. This should have

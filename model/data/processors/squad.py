@@ -728,7 +728,7 @@ class SquadFeatures(object):
 
 class SquadResult(object):
     """
-    Constructs a SquadResult which can be used to evaluate a model's output on the SQuAD dataset.
+    Constructs a SquadResult which can be used to evaluate a model's eval_model_dir on the SQuAD dataset.
 
     Args:
         unique_id: The unique identifier corresponding to that example.

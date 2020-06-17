@@ -5,7 +5,7 @@ import numpy as np
 
 class EvalPrediction(NamedTuple):
     """
-    Evaluation output (always contains labels), to be used
+    Evaluation eval_model_dir (always contains labels), to be used
     to compute metrics.
     """
 
